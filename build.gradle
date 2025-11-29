@@ -1,0 +1,40 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'com.jfrog.artifactory' version '4.28.2'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'io.freefair.lombok' version '8.0.0'
+    id 'com.diffplug.spotless' version '6.2.0'
+}
+
+
+group 'com.design'
+
+application {
+    mainClassName 'com.demo.app.AnalyticsApplication'
+}
+
+shadowJar {
+    archiveBaseName.set('analytics-service')
+}
+
+/* --- Add repositories so Gradle can resolve external dependencies --- */
+repositories {
+    mavenCentral()
+
+}
+
+
+dependencies {
+
+    implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
+    implementation 'com.getsentry.raven:raven-logback:8.0.3'
+    implementation 'commons-collections:commons-collections:3.2.2'
+
+    compileOnly 'org.projectlombok:lombok:1.18.16'
+    annotationProcessor 'org.projectlombok:lombok:1.18.16'
+}
+
+jar {
+    enabled false
+}
