@@ -1,9 +1,9 @@
-package com.demo.app.services;
+package com.demo.app.repository;
 
 import com.demo.app.contracts.MetricsStore;
 import com.demo.app.models.PageViewMetric;
 import lombok.NoArgsConstructor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor
-@Service
+@Repository
 public class InMemoryMetricsStore implements MetricsStore {
 
 
@@ -35,9 +35,7 @@ public class InMemoryMetricsStore implements MetricsStore {
 
     @Override
     public void updateActiveUser(String userId, Instant timestamp) {
-        System.out.println("Updating active user: " + userId + " at " + timestamp);
         activeUsers.put(userId, timestamp);
-        System.out.println("activeUsers size: " + activeUsers.size());
     }
 
     @Override
@@ -51,7 +49,7 @@ public class InMemoryMetricsStore implements MetricsStore {
     @Override
     public long getActiveUserCount(Duration window) {
         Instant cutoff = Instant.now().minus(window);
-        //activeUsers.entrySet().removeIf(entry -> entry.getValue().isBefore(cutoff));
+        activeUsers.entrySet().removeIf(entry -> entry.getValue().isBefore(cutoff));
         return activeUsers.size();
     }
 

@@ -34,15 +34,12 @@ public class DashboardController {
 
         System.out.println("Load Events");
 
-//        EventIngestionService ingestion = new DefaultEventIngestionService(new RealTimeEventProcessor(new InMemoryMetricsStore()));
-//
         MockEventGenerator mockEventGenerator = new DefaultMockEventGenerator(eventIngestionService, 50L); // 20 events/sec
         mockEventGenerator.start();
 
         // Let it run for 10 seconds
-        Thread.sleep(1000);
+        Thread.sleep(10000);
         mockEventGenerator.stop();
-
 
         return "Events Loaded";
     }

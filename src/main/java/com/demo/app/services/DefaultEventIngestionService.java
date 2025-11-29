@@ -12,8 +12,6 @@ import org.springframework.stereotype.Service;
 public class DefaultEventIngestionService implements EventIngestionService {
 
     EventProcessor eventProcessor;
-
-
     @Override
     public void ingest(UserEvent event) {
 
