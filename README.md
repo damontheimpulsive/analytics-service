@@ -84,13 +84,23 @@ Base path: `/dashboard`
 
 1. Ensure you have:
     - Java 11+
-    - Maven or Gradle (depending on build setup)
+    - Gradle (wrapper is recommended)
 
 2. Build and run:
+
    ```bash
-   # Example with Maven
-   mvn clean install
-   mvn spring-boot:run
+   # Using Gradle wrapper
+   ./gradlew clean build
+   ./gradlew bootRun
+   ```
+
+   On Windows:
+
+   ```bash
+   gradlew.bat clean build
+   gradlew.bat bootRun
+   ```
+
    ```
 
 3. Access endpoints:
