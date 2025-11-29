@@ -1,40 +1,51 @@
 plugins {
     id 'java'
     id 'application'
+    id 'org.springframework.boot' version '2.7.18'
+    id 'io.spring.dependency-management' version '1.1.7'
     id 'com.jfrog.artifactory' version '4.28.2'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'io.freefair.lombok' version '8.0.0'
     id 'com.diffplug.spotless' version '6.2.0'
 }
 
+group = 'com.demo.app'
+version = '1.0.0-SNAPSHOT'
 
-group 'com.design'
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
+}
 
 application {
-    mainClassName 'com.demo.app.AnalyticsApplication'
+    mainClassName = 'AnalyticsApplication'
 }
 
 shadowJar {
     archiveBaseName.set('analytics-service')
 }
 
-/* --- Add repositories so Gradle can resolve external dependencies --- */
 repositories {
     mavenCentral()
-
 }
 
-
 dependencies {
+    // Spring Boot starters
+    implementation 'org.springframework.boot:spring-boot-starter'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
 
     implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
     implementation 'com.getsentry.raven:raven-logback:8.0.3'
     implementation 'commons-collections:commons-collections:3.2.2'
 
-    compileOnly 'org.projectlombok:lombok:1.18.16'
-    annotationProcessor 'org.projectlombok:lombok:1.18.16'
+    // Testing (includes JUnit 5 and Mockito)
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+test {
+    useJUnitPlatform()
 }
 
 jar {
-    enabled false
+    enabled = false
 }
