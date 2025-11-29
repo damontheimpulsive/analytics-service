@@ -112,6 +112,31 @@ Base path: `/dashboard`
 
 ---
 
+
+## Architecture Choices
+
+- Layered design: controller → service → repository to keep HTTP concerns, business logic, and data access separated.
+- In-memory metrics store for simplicity and fast iteration, with an interface to allow swapping in a persistent store later.
+- REST endpoints exposing aggregated metrics (active users, top pages, active sessions) for easy integration with dashboards or UIs.
+
+## Data Modelling
+
+- **Active users**: map of `userId → lastSeenTimestamp`.
+- **Page views**: map of `pageUrl → [timestamps]` to support time‑window queries and ranking.
+- **User sessions**: map of `userId → (sessionId → lastSeenTimestamp)` to track multiple concurrent sessions per user.
+- Simple DTOs (e.g. `PageViewMetric`) returned by the service layer for clear, typed API responses.
+
+## Performance Considerations
+
+- All structures kept in memory for low‑latency reads and writes.
+- Concurrent collections used to support multi‑threaded access.
+- Periodic cleanup of old timestamps when querying to keep memory bounded and queries scoped to the configured time window.
+- Current implementation is suitable for demo / low volume usage; for higher scale, you can:
+    - Move metrics to a dedicated store (time‑series DB, key‑value store, or cache like Redis).
+    - Pre‑aggregate counters to avoid scanning long timestamp lists.
+    - Introduce sharding or partitioning by user or page to reduce contention.
+
+
 ## Configuration & Extensibility
 
 - The time windows (e.g., 5 minutes for active users, 15 minutes for top pages) are currently set in code but can be externalized to configuration.

@@ -7,10 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -59,15 +56,13 @@ public class InMemoryMetricsStore implements MetricsStore {
 
         Instant cutoff = Instant.now().minus(window);
 
-        return pageViews.entrySet().stream()
-                .map(entry -> {
-                    // Remove outdated timestamps
-                    entry.getValue().removeIf(ts -> ts.isBefore(cutoff));
-                    return new PageViewMetric(entry.getKey(), entry.getValue().size());
-                })
-                .sorted((a, b) -> Long.compare(b.getCount(), a.getCount()))
+        return pageViews.entrySet()
+                .stream()
+                .map(entry -> toPageViewMetricAfterCleanup(entry, cutoff))
+                .sorted(Comparator.comparingLong(PageViewMetric::getCount).reversed())
                 .limit(limit)
                 .collect(Collectors.toList());
+
     }
 
     @Override
@@ -80,4 +75,18 @@ public class InMemoryMetricsStore implements MetricsStore {
         sessions.entrySet().removeIf(entry -> entry.getValue().isBefore(cutoff));
         return sessions.size();
     }
+
+    private PageViewMetric toPageViewMetricAfterCleanup(Map.Entry<String, List<Instant>> entry,
+                                                        Instant cutoff) {
+
+        var url = entry.getKey();
+        var timestamps = entry.getValue();
+
+        // Remove outdated timestamps in-place
+        timestamps.removeIf(ts -> ts.isBefore(cutoff));
+
+        var count = timestamps.size();
+        return new PageViewMetric(url, count);
+    }
+
 }
