@@ -57,19 +57,15 @@ It ingests user events, processes them in real time, and exposes metrics over RE
 
 Base path: `/dashboard`
 
-1. `GET /dashboard`
-    - Serves the HTML dashboard page (`dashboard.html`).
-    - Intended to be opened directly in a browser.
-
-2. `GET /dashboard/active-users`
+1. `GET /dashboard/active-users`
     - Returns `ActiveUserMetric`.
     - Represents number of active users in the last 5 minutes.
-
-3. `GET /dashboard/top-pages`
+ 
+2. `GET /dashboard/top-pages`
     - Returns a list of `PageViewMetric`.
     - Top N pages (e.g., 5) in the last 15 minutes.
 
-4. `GET /dashboard/users/{userId}/active-sessions`
+3. `GET /dashboard/users/{userId}/active-sessions`
     - Returns `UserSessionMetric` for a specific `userId`.
     - Shows how many active sessions that user has in the last 5 minutes.
 
@@ -115,7 +111,7 @@ Base path: `/dashboard`
 3. Access endpoints and UI:
 
     - HTML dashboard:  
-      `http://localhost:8080/dashboard`
+      `http://localhost:8080/dashboard.html`
 
     - Active users (JSON):  
       `GET http://localhost:8080/dashboard/active-users`
@@ -126,7 +122,25 @@ Base path: `/dashboard`
     - Active sessions for a user (JSON):  
       `GET http://localhost:8080/dashboard/users/{userId}/active-sessions`
 
----
+
+
+## Real-Time Dashboard Behavior
+
+- When you start the application, the mock event generator begins producing events automatically, typically every second.
+- These events are continuously ingested and processed to update the in-memory analytics metrics.
+- To view the real-time metrics, open the dashboard in your browser:
+
+    - URL: `http://localhost:8080/dashboard.html`
+
+- The **Realtime Dashboard** loaded from this URL will display live data such as:
+    - Active users
+    - Top visited pages
+    - Active sessions per user
+
+As the background event generator keeps running, the numbers and charts 
+on the Realtime Dashboard will update continuously without requiring you 
+to manually refresh the data source.
+
 
 ## Architecture Choices
 
