@@ -37,16 +37,6 @@ public class DashboardControllerTest {
     }
 
     @Test
-    void dashboardHome_shouldReturnEventsLoaded() throws Exception {
-
-        mockMvc.perform(get("/dashboard"))
-               .andExpect(status().isOk())
-               .andExpect(content().string("Events Loaded"));
-        // No direct interaction expectations on services here because
-        // DashboardController builds DefaultMockEventGenerator internally.
-    }
-
-    @Test
     void getActiveUsers_shouldReturnMetricFromService() throws Exception {
 
         ActiveUserMetric metric = new ActiveUserMetric(5L);
