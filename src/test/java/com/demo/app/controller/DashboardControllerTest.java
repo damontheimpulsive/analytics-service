@@ -28,7 +28,7 @@ public class DashboardControllerTest {
     private MockMvc mockMvc;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws InterruptedException {
         dashboardService = mock(DashboardService.class);
         eventIngestionService = mock(EventIngestionService.class);
 

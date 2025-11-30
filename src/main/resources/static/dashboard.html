@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Realtime Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 24px;
+            background-color: #f5f5f5;
+        }
+
+        h1 {
+            margin-bottom: 8px;
+        }
+
+        .timestamp {
+            font-size: 0.9em;
+            color: #555;
+            margin-bottom: 16px;
+        }
+
+        .cards {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            min-width: 220px;
+        }
+
+        .card-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 8px 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: #fafafa;
+            text-align: left;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        #error {
+            color: #b00020;
+            margin-top: 12px;
+        }
+
+        input[type="text"] {
+            padding: 4px 8px;
+            margin-right: 8px;
+        }
+
+        button {
+            padding: 4px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<h1>Realtime Dashboard</h1>
+<div class="timestamp">
+    Refresh interval:
+    <span id="refreshInterval">30</span>&nbsp;seconds
+    <br><br>
+    Last refreshed:
+    <span id="lastRefreshed">–</span>&nbsp;
+</div>
+
+
+<div class="cards">
+    <div class="card">
+        <div class="card-title">Active Users (last 5 minutes)</div>
+        <div id="activeUsersCount">Loading...</div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">Active Sessions (user)</div>
+        <div>
+            <label for="userIdInput">User ID:</label>
+            <input type="text" id="userIdInput" placeholder="Enter user id">
+            <button id="loadUserSessionsBtn">Load</button>
+        </div>
+        <div style="margin-top: 8px;">
+            <span id="activeSessionsCount">–</span>
+        </div>
+    </div>
+</div>
+
+<h2>Top 5 Pages (last 15 minutes)</h2>
+<table>
+    <thead>
+    <tr>
+        <th>#</th>
+        <th>URL</th>
+        <th>Views</th>
+    </tr>
+    </thead>
+    <tbody id="topPagesTableBody">
+    <tr>
+        <td colspan="3">Loading...</td>
+    </tr>
+    </tbody>
+</table>
+
+<div id="error"></div>
+
+<script>
+    const API_BASE = '/dashboard';
+
+    async function fetchJson(url) {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error('Request failed: ' + response.status + ' ' + response.statusText);
+        }
+        return response.json();
+    }
+
+    async function loadActiveUsers() {
+        const data = await fetchJson(API_BASE + '/active-users');
+        // Assuming response shape: { count: number, ... }
+        document.getElementById('activeUsersCount').textContent = data.count;
+    }
+
+    async function loadTopPages() {
+        const data = await fetchJson(API_BASE + '/top-pages');
+        const tbody = document.getElementById('topPagesTableBody');
+        tbody.innerHTML = '';
+
+        if (!data || data.length === 0) {
+            const row = document.createElement('tr');
+            const cell = document.createElement('td');
+            cell.colSpan = 3;
+            cell.textContent = 'No data';
+            row.appendChild(cell);
+            tbody.appendChild(row);
+            return;
+        }
+
+        data.forEach((item, index) => {
+            const row = document.createElement('tr');
+
+            const rankCell = document.createElement('td');
+            rankCell.textContent = index + 1;
+
+            const urlCell = document.createElement('td');
+            urlCell.textContent = item.url;
+
+            const countCell = document.createElement('td');
+            countCell.textContent = item.count;
+
+            row.appendChild(rankCell);
+            row.appendChild(urlCell);
+            row.appendChild(countCell);
+            tbody.appendChild(row);
+        });
+    }
+
+    async function loadActiveSessionsForUser(userId) {
+        if (!userId) {
+            document.getElementById('activeSessionsCount').textContent = 'Enter a user id';
+            return;
+        }
+
+        const data = await fetchJson(API_BASE + '/users/' + encodeURIComponent(userId) + '/active-sessions');
+        // Assuming response shape: { userId: string, activeSessions: number, ... }
+        document.getElementById('activeSessionsCount').textContent = data.activeSessions;
+    }
+
+    async function refreshAll() {
+        const errorEl = document.getElementById('error');
+        errorEl.textContent = '';
+
+        try {
+            await Promise.all([
+                loadActiveUsers(),
+                loadTopPages()
+                // active sessions is user-specific; only loaded on button click
+            ]);
+
+            document.getElementById('lastRefreshed').textContent =
+                new Date().toLocaleTimeString();
+        } catch (e) {
+            console.error(e);
+            errorEl.textContent = 'Error loading dashboard data: ' + e.message;
+        }
+    }
+
+    // Auto-refresh every 30 seconds
+    setInterval(refreshAll, 30000);
+
+    // Manual load for active sessions of a specific user
+    document.getElementById('loadUserSessionsBtn').addEventListener('click', () => {
+        const userId = document.getElementById('userIdInput').value.trim();
+        loadActiveSessionsForUser(userId).catch(e => {
+            document.getElementById('error').textContent =
+                'Error loading user sessions: ' + e.message;
+        });
+    });
+
+    // Initial load
+    refreshAll();
+</script>
+</body>
+</html>
