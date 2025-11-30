@@ -111,6 +111,7 @@ Base path: `/dashboard`
 Or run the fat JAR directly:
 
   ```bash
+      ./gradlew clean build
       java -jar build/libs/analytics-service-1.0.0-SNAPSHOT-all.jar
  ```
 
