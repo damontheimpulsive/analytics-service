@@ -27,7 +27,7 @@ public class MockEventGeneratorRunner {
     @PostConstruct
     public void startGenerator() {
         System.out.println("Starting continuous mock event generator...");
-        this.mockEventGenerator = new DefaultMockEventGenerator(eventIngestionService, 50L); // ~20 events/sec
+        this.mockEventGenerator =  createMockEventGenerator(); // ~20 events/sec
         this.mockEventGenerator.start();
 
         // Toggle pause/resume every 5 seconds
@@ -59,5 +59,10 @@ public class MockEventGeneratorRunner {
         controlScheduler.shutdownNow();
 
     }
+
+    protected MockEventGenerator createMockEventGenerator() {
+        return new DefaultMockEventGenerator(eventIngestionService, 50L);
+    }
+
 
 }
