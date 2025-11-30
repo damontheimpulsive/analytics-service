@@ -1,7 +1,7 @@
 # Analytics Service
 
 A simple real-time analytics demo application built with Java 11 and Spring Boot.  
-It ingests user events, processes them in real time, and exposes metrics over REST APIs.
+It ingests user events, processes them in real time, and exposes metrics over REST APIs, plus a simple HTML dashboard.
 
 ---
 
@@ -13,6 +13,7 @@ It ingests user events, processes them in real time, and exposes metrics over RE
 - Top visited pages over a recent time window
 - Active sessions per user
 - Simple mock event generator to quickly populate data
+- Lightweight HTML dashboard UI (`dashboard.html`) to visualize metrics
 
 ---
 
@@ -26,6 +27,7 @@ It ingests user events, processes them in real time, and exposes metrics over RE
     - `DashboardService` and its implementation aggregate and return metrics.
     - `EventIngestionService` accepts raw events and passes them to the processor.
     - `RealTimeEventProcessor` updates metrics in the `MetricsStore`.
+    - `MockEventGeneratorRunner` manages the lifecycle of the mock event generator (start/stop/pause/resume) that feeds events into `EventIngestionService`.
 
 - **Metrics Store**
     - `MetricsStore` interface abstracts metric read/write operations.
@@ -38,7 +40,16 @@ It ingests user events, processes them in real time, and exposes metrics over RE
 
 - **Mock Event Generator**
     - `MockEventGenerator` periodically creates random user events.
+    - `DefaultMockEventGenerator` is a concrete implementation that generates realistic demo traffic.
+    - `MockEventGeneratorRunner` creates and starts the generator so events continuously flow into the system.
     - Useful for demos and local testing without external traffic.
+
+- **Dashboard UI**
+    - `dashboard.html` is a simple browser-based dashboard.
+    - It calls the REST endpoints under `/dashboard` and visualizes:
+        - Active users
+        - Top pages
+        - Active sessions for a given user
 
 ---
 
@@ -47,8 +58,8 @@ It ingests user events, processes them in real time, and exposes metrics over RE
 Base path: `/dashboard`
 
 1. `GET /dashboard`
-    - Triggers mock events ingestion for a short duration.
-    - Returns a simple message (e.g., `"Events Loaded"`).
+    - Serves the HTML dashboard page (`dashboard.html`).
+    - Intended to be opened directly in a browser.
 
 2. `GET /dashboard/active-users`
     - Returns `ActiveUserMetric`.
@@ -76,7 +87,7 @@ Base path: `/dashboard`
     - `ActiveUserMetric`
     - `PageViewMetric`
     - `UserSessionMetric`
-5. The controller returns these objects as JSON for each REST endpoint.
+5. The dashboard endpoints return these objects as JSON for the REST API and for consumption by `dashboard.html`.
 
 ---
 
@@ -101,30 +112,46 @@ Base path: `/dashboard`
    gradlew.bat bootRun
    ```
 
-   ```
+3. Access endpoints and UI:
 
-3. Access endpoints:
-    - Trigger mock events: `GET http://localhost:8080/dashboard`
-    - Active users: `GET http://localhost:8080/dashboard/active-users`
-    - Top pages: `GET http://localhost:8080/dashboard/top-pages`
-    - Active sessions for a user:  
+    - HTML dashboard:  
+      `http://localhost:8080/dashboard`
+
+    - Active users (JSON):  
+      `GET http://localhost:8080/dashboard/active-users`
+
+    - Top pages (JSON):  
+      `GET http://localhost:8080/dashboard/top-pages`
+
+    - Active sessions for a user (JSON):  
       `GET http://localhost:8080/dashboard/users/{userId}/active-sessions`
 
 ---
-
 
 ## Architecture Choices
 
 - Layered design: controller → service → repository to keep HTTP concerns, business logic, and data access separated.
 - In-memory metrics store for simplicity and fast iteration, with an interface to allow swapping in a persistent store later.
 - REST endpoints exposing aggregated metrics (active users, top pages, active sessions) for easy integration with dashboards or UIs.
+- Separate mock event generator runner to simulate load without external dependencies.
 
 ## Data Modelling
 
 - **Active users**: map of `userId → lastSeenTimestamp`.
-- **Page views**: map of `pageUrl → [timestamps]` to support time‑window queries and ranking.
-- **User sessions**: map of `userId → (sessionId → lastSeenTimestamp)` to track multiple concurrent sessions per user.
-- Simple DTOs (e.g. `PageViewMetric`) returned by the service layer for clear, typed API responses.
+- **Page views**: counters per page URL over a rolling time window.
+- **Sessions**: map of `(userId, sessionId) → lastSeenTimestamp` to calculate active sessions per user.
+
+---
+
+## Testing
+
+- Unit tests are provided for:
+    - Dashboard REST endpoints.
+    - Mock event generator lifecycle logic.
+
+Run tests with command **./gradlew test**
+
+
 
 ## Performance Considerations
 
@@ -148,7 +175,6 @@ Base path: `/dashboard`
 ---
 
 ## Technologies Used
-
 - Java 11
 - Spring Boot (Web)
 - Lombok
