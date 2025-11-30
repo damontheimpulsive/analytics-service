@@ -9,7 +9,6 @@ plugins {
     id 'com.diffplug.spotless' version '6.2.0'
 }
 
-group = 'com.demo.app'
 version = '1.0.0-SNAPSHOT'
 
 java {
@@ -18,7 +17,7 @@ java {
 }
 
 application {
-    mainClassName = 'AnalyticsApplication'
+    mainClassName = 'com.demo.app.AnalyticsApplication'
 }
 
 shadowJar {
