@@ -122,7 +122,7 @@ Base path: `/dashboard`
     - Active sessions for a user (JSON):  
       `GET http://localhost:8080/dashboard/users/{userId}/active-sessions`
 
-
+---
 
 ## Real-Time Dashboard Behavior
 
@@ -165,7 +165,7 @@ to manually refresh the data source.
 
 Run tests with command **./gradlew test**
 
-
+---
 
 ## Performance Considerations
 
@@ -177,6 +177,7 @@ Run tests with command **./gradlew test**
     - Pre‑aggregate counters to avoid scanning long timestamp lists.
     - Introduce sharding or partitioning by user or page to reduce contention.
 
+---
 
 ## Configuration & Extensibility
 
