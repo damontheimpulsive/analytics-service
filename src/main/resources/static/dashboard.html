@@ -76,6 +76,41 @@
             padding: 4px 10px;
             cursor: pointer;
         }
+
+        .card-form {
+            margin-top: 8px;
+        }
+
+        .card-label {
+            display: block;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+
+        .card-help-text {
+            color: #666;
+            font-weight: normal;
+            margin-left: 4px;
+        }
+
+        .card-input-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .card-input-row input[type="text"] {
+            flex: 1;
+            margin-right: 0; /* override global margin-right if needed */
+        }
+
+        .card-metric {
+            margin-top: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+
     </style>
 </head>
 <body>
@@ -96,13 +131,28 @@
     </div>
 
     <div class="card">
-        <div class="card-title">Active Sessions (user)</div>
-        <div>
-            <label for="userIdInput">User ID:</label>
-            <input type="text" id="userIdInput" placeholder="Enter user id">
-            <button id="loadUserSessionsBtn">Load</button>
-        </div>
-        <div style="margin-top: 8px;">
+        <div class="card-title">Active Sessions for User</div>
+
+        <form id="userSessionsForm" class="card-form">
+            <label for="userIdInput" class="card-label">
+                User ID
+                <span class="card-help-text">
+                (you can read it from the application console logs)
+            </span>
+            </label>
+            <div class="card-input-row">
+                <input
+                        type="text"
+                        id="userIdInput"
+                        name="userId"
+                        placeholder="Enter user ID"
+                        autocomplete="off"
+                />
+                <button type="button" id="loadUserSessionsBtn">Load</button>
+            </div>
+        </form>
+
+        <div class="card-metric">
             <span id="activeSessionsCount">–</span>
         </div>
     </div>
