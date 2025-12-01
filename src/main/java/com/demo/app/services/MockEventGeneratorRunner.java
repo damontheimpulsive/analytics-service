@@ -30,7 +30,7 @@ public class MockEventGeneratorRunner {
         this.mockEventGenerator =  createMockEventGenerator(); // ~20 events/sec
         this.mockEventGenerator.start();
 
-        // Toggle pause/resume every 5 seconds
+        // Toggle runs it for 5 seconds and pauses it every 10 seconds
         controlScheduler.scheduleAtFixedRate(new Runnable() {
             private boolean paused = false;
 
@@ -46,7 +46,7 @@ public class MockEventGeneratorRunner {
                 }
                 paused = !paused;
             }
-        }, 5, 5, TimeUnit.SECONDS);
+        }, 5, 10, TimeUnit.SECONDS);
 
     }
 
